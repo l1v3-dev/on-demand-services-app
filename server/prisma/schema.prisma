@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  fullname  String
+  address   String
+  tel       String
+  fbID      String    @unique
+  igID      String    @unique
+  role      String
+  Service   Service[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Reviewed  Review[]  @relation("Reviewer")
+  Provided  Review[]  @relation("Provider")
+  Sent      Message[] @relation("dest")
+  Received  Message[] @relation("exp")
+}
+
+model Service {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String       @db.VarChar(255)
+  provider    User         @relation(fields: [providerId], references: [id])
+  providerId  Int
+  prestations Prestation[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Prestation {
+  id          Int      @id @default(autoincrement())
+  type        String
+  price       String
+  description String   @db.VarChar(255)
+  service     Service  @relation(fields: [serviceId], references: [id])
+  serviceId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id         Int    @id @default(autoincrement())
+  value      Int
+  comment    String @db.VarChar(255)
+  client     User   @relation(name: "Reviewer", fields: [clientId], references: [id])
+  clientId   Int
+  provider   User   @relation(name: "Provider", fields: [providerId], references: [id])
+  providerId Int
+}
+
+model Message {
+  id        Int    @id @default(autoincrement())
+  content   String @db.VarChar(255)
+  to_user   User   @relation(name: "dest", fields: [destId], references: [id])
+  destId    Int
+  from_user User   @relation(name: "exp", fields: [expId], references: [id])
+  expId     Int
+}

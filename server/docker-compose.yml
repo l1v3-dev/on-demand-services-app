@@ -1,0 +1,30 @@
+version: "3.3"
+services:
+  # backend:
+  #   ports:
+  #     - 5000:5000
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: demo_back
+  #   volumes:
+  #     - ./src:/app
+  #   networks: ["demo"]
+
+  postgres:
+    image: postgres:alpine
+    container_name: on_demand_pgsql
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes: 
+      - ./postgres-data:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    networks: ["on_demand"]
+
+networks:
+  on_demand:
